@@ -1,0 +1,201 @@
+extends layout/base
+
+block block 
+    section.container.mt-3#product_id(data-id=doc.ecmpeId)
+        nav(aria-label='breadcrumb')
+            ol.breadcrumb
+                li.breadcrumb-item.fs-5
+                    a.main-color.bread-c(href='/') Home
+                li.breadcrumb-item.fs-5
+                    a.main-color.bread-c(href='/shop') Shop
+                li.breadcrumb-item.active.fs-5(aria-current='page')
+                    a.bread-c.text-dark= doc.name
+        .row
+            .col-sm-6
+                .p-4
+                    .row.justify-content-center
+                        a.main_img_link(href=doc.imageGallery[0] data-toggle='lightbox' data-gallery='hidden-images')
+                            img.img-fluid.w-100.main_img_src(src=doc.imageGallery[0])
+                        // elements not showing, use data-remote or data-src
+                        //- each img in doc.imageGallery
+                            div.sld_gallry(data-toggle='lightbox' data-gallery='hidden-images' data-src=img data-title='Hidden item 1')
+
+                .row.justify-content-center.img_manipulation
+                    each img in doc.imageGallery
+                        .col-3.h-20.sld_gallry(data-img=img)
+                            img.img-fluid.small-img(src=img data-img=img)
+
+            .col-sm-6
+                h4.mt-4=doc.name
+                .d-flex.justify-content-start.mt-3
+                    each rat in [1,2,3,4,5]
+                        i.bi.bi-star-fill.me-1(class=rat <= doc.ratingsAverage ? "text-warning" : "text-secondary")
+                    p.main-light= doc.ratingsAverage
+                    p.text-success.ms-4.fw-bold= doc.active ? "In Stock" : "Out of Stock"
+                h3.fw-bold#price_details
+                    if doc.discountPrice
+                        span Rs. #{doc.discountPrice}
+                        span.text-decoration-line-through.text-secondary.fw-normal.fs-6 Rs.#{doc.price}
+                        span.main-light.fs-6  (#{Math.floor(((doc.price-doc.discountPrice)/doc.price)*100)}% OFF)
+                    else
+                        span Rs. #{doc.price}
+                p.text-secondary.mt-4= doc.description
+                each spc in doc.specification
+                    .row
+                        .col-3
+                            p.fw-bold=spc.title
+                        .col-4
+                            p=spc.description
+
+                hr
+                if doc.productType === "colorOnly" || doc.productType === "colorWithSize"
+                    div
+                        p.m-0.p-0.fw-bold.mt-2.mb-2 SELECT COLOR
+                        .d-flex.p-1
+                            each ban in doc.productDetails
+                                img.selection_image.border.p-2.ms-2.cursor-pointer(src=ban.bannerImage,data-color=ban.ecmpsId)
+                hr
+                .row
+                    if doc.productType === "sizeOnly" || doc.productType === "colorWithSize"
+                        .col-4.mb-2
+                            p.m-0.p-0.fw-bold.mb-2.text-uppercase  Size
+                            select.form-select#size_selection(aria-label='Default select example')
+                                each val in doc.productDetails[0].subDetails
+                                    option(value=val.ecmpssId)= val.size
+                        -const orginVal = JSON.stringify(doc.productDetails[0].subDetails)
+                            if doc.productType === "sizeOnly" 
+                                #rm_content
+                                    script.
+                                        let docVals ="#{orginVal}".replace(/&quot;/g, '"')
+                                        docVals = JSON.parse(docVals);
+
+                                        const size_selection = document.getElementById('size_selection');
+                                        size_selection.addEventListener('change',e=>{
+                                            e.preventDefault();
+                                            docVals.map(el=>{
+                                                if(el.ecmpssId === e.target.value){
+                                                    const pri_html = el.discountPrice
+                                                        ? `
+                                                        <span>Rs. ${el.discountPrice}</span>
+                                                        <span class="text-decoration-line-through text-secondary fw-normal fs-6">Rs.${
+                                                            el.price
+                                                        }</span>
+                                                        <span class="main-light fs-6"> (${Math.floor(
+                                                            ((el.price - el.discountPrice) / el.price) *
+                                                                100
+                                                        )}% OFF)</span>
+                                                        `
+                                                            : ` <span>Rs. ${el.price}</span>`;
+                                                        const price_details =                        document.getElementById('price_details');
+                                                        price_details.replaceChildren();
+                                                        price_details.insertAdjacentHTML(
+                                                            'beforeend',
+                                                            pri_html
+                                                        );
+                                                }
+                                            })
+                                        })
+                                        document.getElementById('rm_content').remove()
+                    .col-4
+                        p.m-0.p-0.fw-bold.mb-2.text-uppercase Quantity
+                        .d-flex
+                            p.m-0.input-size.p-1.ps-3.pe-3.border.cursor-pointer#sub_quantity
+                                | -
+                            p.m-0.input-count.p-1.ps-4.pe-4.border#count_quantity 1
+                            p.m-0.input-size.p-1.ps-3.pe-3.border.cursor-pointer#add_quantity
+                                | +
+                .d-flex.button-card
+                    a.buy-now.buy_order(href='#') Buy Now
+                    a.add-cart.add_to_cart(href='#')
+                        i.bi.bi-bag
+                        |  Add to Cart
+                    a.wishlist-add.add_to_wishlist(href='#' data-id=doc.ecmpeId)
+                        i.bi.bi-heart
+                        |  Save to Wishlist
+                .button-card-mobile
+                    a.buy-now.d-block.text-center(href='#') Buy Now
+                    a.add-cart.d-block.text-center.ms-0.add_to_cart(href='#')
+                        i.bi.bi-bag
+                        |  Add to Cart
+                    a.wishlist-add.d-block.text-center.ms-0.add_to_wishlist(href='#' data-id=doc.ecmpeId)
+                        i.bi.bi-heart
+                        |  Save to Wishlist
+
+    section.container.mt-5
+        hr
+        .p-3.bg-white
+            ul#pills-tab.nav.nav-pills.nav-fill.mb-3(role='tablist')
+                li.nav-item(role='presentation')
+                    button#pills-home-tab.nav-link.active(data-bs-toggle='pill' data-bs-target='#pills-home' type='button' role='tab' aria-controls='pills-home' aria-selected='true')
+                        | DESCRIPTION
+                li.nav-item(role='presentation')
+                    button#pills-profile-tab.nav-link(data-bs-toggle='pill' data-bs-target='#pills-profile' type='button' role='tab' aria-controls='pills-profile' aria-selected='false')
+                        | PRODUCT DETAILS
+                li.nav-item(role='presentation')
+                    button#pills-contact-tab.nav-link(data-bs-toggle='pill' data-bs-target='#pills-contact' type='button' role='tab' aria-controls='pills-contact' aria-selected='false')
+                        | REVIEWS
+            #pills-tabContent.tab-content
+                #pills-home.tab-pane.fade.show.active.p-3(role='tabpanel' aria-labelledby='pills-home-tab' tabindex='0')
+                    p.fw-bold.text-secondary Description
+                    p.text-secondary=doc.description
+                #pills-profile.tab-pane.fade.p-3(role='tabpanel' aria-labelledby='pills-profile-tab' tabindex='0')
+                    p.fw-bold.text-secondary Shipping Details
+                    p.text-secondary
+                        | Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eveniet
+                        | pariatur quaerat at molestias accusamus cum libero est. Adipisci
+                        | possimus doloremque enim facilis non, natus ad quisquam ea ab
+                        | pariatur atque, beatae illum saepe modi accusamus sequi culpa et
+                        | deserunt optio quam exercitationem. Saepe nihil obcaecati amet
+                        | autem eum soluta quo!
+                    p.fw-bold.text-secondary Product Features
+                    each spc in doc.features
+                        .row
+                            .col-3
+                                p.fw-bold=spc.title
+                            .col-4
+                                p=spc.description
+
+
+                #pills-contact.tab-pane.fade.p-3(role='tabpanel' aria-labelledby='pills-contact-tab' tabindex='0')
+                    p.fw-bold.text-secondary Top Reviews
+                    each docs in doc.reviews
+                        .review-card
+                            .d-flex.m-0
+                                i.bi.bi-person-circle.text-secondary.fs-4
+                                p.text-secondary.m-0.mt-2.ms-3=docs.userId.name
+                            .d-flex.m-0
+                                each docv in [1,2,3,4,5]
+                                    i.bi.main-light(class=docv <= docs.rating ? "bi-star-fill" : "bi-star")
+                                //- p.fw-bold.m-0.ms-3 Title of the Review
+                            p.text-secondary.m-0 Reviewed At : #{new Date(doc.createdAt).toLocaleString()}
+                            p.Verified-Purchase.m-0 Verified Purchase
+                            p.text-secondary.m-0= docs.review
+    section.container.mt-2
+        .border-top.w-100
+        p.border.text-center.fs-5.position-absolute.p-2.title.bg-white.m-auto
+            | RELATED PRODUCTS
+        .row.row-cols-2.row-cols-md-5.g-4.mt-5
+            each doc in recommendedProduct
+                .col
+                    .card.h-100.border-0
+                        if doc.discountPrice
+                            p.batch #{Math.floor(((doc.price-doc.discountPrice)/doc.price)*100)}%
+                        a(href=`/shop/product/${doc.slug}`)
+                            img.card-img-top(src=doc.bannerImage alt='product name')
+                        .card-body
+                            a(href=`/shop/product/${doc.slug}`)
+                                p.card-text.light-black.text-center.two-line.m-0.p-0.mt-1.mb-2=doc.name
+                            .d-flex.justify-content-center
+                                each rat in [1,2,3,4,5]
+                                    i.bi.bi-star-fill.me-1(class=rat <= doc.ratingsAverage ? "text-warning" : "text-secondary")
+                                p.text-gray.fs-small.mt-05 (#{doc.ratingsQuantity})
+                            .d-flex.justify-content-center
+                                if doc.discountPrice
+                                    p.text-secondary.text-decoration-line-through.m-0.p-0.me-2.fs-5
+                                        | $#{doc.price}
+                                    p.text-dark.fw-bold.m-0.p-0.me-2.fs-5 $#{doc.discountPrice}
+                                else 
+                                    p.text-dark.fw-bold.m-0.p-0.me-2.fs-5 $#{doc.price  }
+
+                            .d-flex.justify-content-center
+                                a.p-2.text-uppercase.rounded-1.mt-2.ps-3.pe-3.fs-small.text-white.btn-main.align-items-center.add_to_carts(href='#' data-id=doc.ecmpeId) Add to cart

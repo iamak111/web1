@@ -1,0 +1,65 @@
+extends layout/base
+
+block block 
+    // Wishlist Product Price Section
+    .container-xl
+        .row
+            // Wishlist Product Section
+            .col-md-12.p-3.mt-5
+                .p-2.bg-white
+                    h6.text-dark.fw-bold.mb-4.text-uppercase My Wishlist
+                    .row.row-cols-2.row-cols-md-3.row-cols-lg-5.g-4
+                        each doc in docs
+                            .col
+                                .cart-product-card.h-100.border
+
+                                    a(href=`/shop/product/${doc.productId.slug}`)
+                                        img.cart-product-img.m-0(src=doc.productId.bannerImage alt='mouse corsair')
+                                        .p-2
+                                            h6.m-0.p-0.text-dark= doc.productId.name
+                                            p.p-0.mt-2.fw-bold.text-dark
+                                                if doc.productId.discountPrice
+                                                    | Rs.$#{doc.productId.discountPrice}
+                                                    span.text-secondary.fw-normal.text-decoration-line-through.product-des Rs.#{doc.productId.price}
+                                                    span.fw-normal.main-light.product-des
+                                                        | (#{Math.floor(((doc.productId.price-doc.productId.discountPrice)/doc.productId.price)*100)}% OFF)
+                                                else 
+                                                    | Rs.$#{doc.productId.price}
+                                        hr.bg-secondary.p-0.m-0
+                                        .row.p-2
+                                            .col
+                                                a(href="#" class="d-block p-2 text-uppercase rounded-1 mt-2 ps-3 pe-3 fs-small text-white btn-main align-items-center w-100 text-center move_cart" data-id=doc.ecmwlId data-product=doc.productEId  )
+                                                    i(class="bi bi-cart fs-5" data-id=doc.ecmwlId data-product=doc.productEId)
+                                            .col
+                                                a(type="button" class="d-block p-2 text-uppercase rounded-1 mt-2 ps-3 pe-3 fs-small text-white btn-danger btn align-items-center w-100 text-center" data-id=doc.ecmwlId) 
+                                                    <i class="bi bi-x fs-5"></i>
+        section.container.mt-2
+            .border-top.w-100
+            p.border.text-center.fs-5.position-absolute.p-2.title.bg-white.m-auto.text-uppercase
+                | Recommended PRODUCTS
+
+            .row.row-cols-2.row-cols-md-5.g-4.mt-5
+                each doc in recommendedProduct
+                    .col
+                        .card.h-100.border-0
+                            if doc.discountPrice
+                                p.batch #{Math.floor(((doc.price-doc.discountPrice)/doc.price)*100)}%
+                            a(href=`/shop/product/${doc.slug}`)
+                                img.card-img-top(src=doc.bannerImage alt='product name')
+                            .card-body
+                                a(href=`/shop/product/${doc.slug}`)
+                                    p.card-text.light-black.text-center.two-line.m-0.p-0.mt-1.mb-2=doc.name
+                                .d-flex.justify-content-center
+                                    each rat in [1,2,3,4,5]
+                                        i.bi.bi-star-fill.me-1(class=rat <= doc.ratingsAverage ? "text-warning" : "text-secondary")
+                                    p.text-gray.fs-small.mt-05 (#{doc.ratingsQuantity})
+                                .d-flex.justify-content-center
+                                    if doc.discountPrice
+                                        p.text-secondary.text-decoration-line-through.m-0.p-0.me-2.fs-5
+                                            | $#{doc.price}
+                                        p.text-dark.fw-bold.m-0.p-0.me-2.fs-5 $#{doc.discountPrice}
+                                    else 
+                                        p.text-dark.fw-bold.m-0.p-0.me-2.fs-5 $#{doc.price  }
+
+                                .d-flex.justify-content-center
+                                    a.p-2.text-uppercase.rounded-1.mt-2.ps-3.pe-3.fs-small.text-white.btn-main.align-items-center.add_to_carts(href='#' data-id=doc.ecmpeId) Add to cart   

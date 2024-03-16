@@ -1,0 +1,48 @@
+div
+  p.fs-small.p-1.fw-bold.text-center.text-white.main_background
+    | FREE STANDARD SHIPPING OVER $99
+nav.bg-white.sticky-top.navbar.navbar-expand-lg.bg-body-tertiary.shadow
+  .container
+    a.navbar-brand(href='/')
+      img.d-inline-block.align-text-top(src='/Assets/Images/TheMobstar.png' alt='Logo' height='40')
+    button.navbar-toggler.border-0(type='button' data-bs-toggle='collapse' data-bs-target='#navbarSupportedContent' aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation')
+      span.navbar-toggler-icon
+    #navbarSupportedContent.collapse.navbar-collapse
+      ul.navbar-nav.me-auto.mb-2.mb-lg-0
+        li.nav-item
+          a.nav-link.active.text-uppercase.fw-medium(aria-current='page' href='/') Home
+        li.nav-item
+          a.nav-link.text-uppercase.fw-medium(href='/shop') Shop
+        li.nav-item
+          a.nav-link.text-uppercase.fw-medium Contact Us
+      ul.navbar-nav.mb-2.mb-lg-0.me-2
+        if !user
+          li.nav-item
+            a.nav-link.text-uppercase.fw-medium(href='/login') Login
+        else 
+          li.nav-item
+            a.nav-link.text-uppercase.fw-medium(href='/account') Account
+        li.nav-item.d-flex
+          a.nav-link.text-uppercase.fw-medium(href="/cart")
+            | Cart / 
+            span.fw-bold.text-dark $#{cart || 0}.00
+          i.bi.bi-bag.fs-5
+        li.nav-item
+          a.nav-link.text-uppercase.fw-medium(href='/wishlist') Wishlist
+        if user
+          li.nav-item
+            a.nav-link.text-uppercase.fw-medium(href='/logout') Logout
+      form.d-flex(role='search')
+        input.form-control.me-2#search(type='search' placeholder='Search' aria-label='Search')
+        button.btn.btn-outline-primary.search_prdocuts(type='button')
+          i.bi.bi-search
+        #search_product 
+          script.
+            document.querySelector('.search_prdocuts').addEventListener('click',e=>{
+              e.preventDefault();
+              let updatedUrl = window.location.pathname === "/shop" ? new URL(window.location.href) : new URL(`${window.location.origin}/shop`)
+              const value = document.getElementById('search').value;
+              updatedUrl.searchParams.set('search', value)
+              return location.assign(updatedUrl)
+            })
+            document.getElementById('search_product').remove()
