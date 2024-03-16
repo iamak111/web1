@@ -30,6 +30,8 @@ router.get(
     viewController.getAProduct
 );
 
+router.get('/contact-us',viewController.getContactus)
+
 router.get(
     '/order/checkout',
     authControllers.protect,
@@ -47,7 +49,6 @@ router.get(
 router.get('/thank-you', authControllers.protect, userController.thankYouGet);
 router.get(
     '/cart',
-    authControllers.protect,
     productController.myCarts,
     productController.getRecommendedProducts,
     userController.getCarts

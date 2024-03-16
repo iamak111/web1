@@ -790,9 +790,11 @@ exports.deleteProudct = catchAsync(async (req, res, next) => {
 exports.getAllProduct = catchAsync(async (req, res, next) => {
     let filterQuery = {};
 
-    if (req.query.search) filterQuery.$text = { $search: req.query.search };
+    if (req.query.search) {
+        filterQuery.$text = { $search: req.query.search };
+    }
     if (req.from === 'web') {
-        filterQuery.for = process.env.CATEGORYA;
+        filterQuery.for = process.env.WEBSITE_CATEGORY;
     }
     filterQuery.verified = true;
 
@@ -973,6 +975,7 @@ exports.getAllProduct = catchAsync(async (req, res, next) => {
 
     size = !size ? [] : size.size;
     color = !color ? [] : color.color;
+
     if (req.from === 'mobile') {
         const cate = await categorieModel.find();
         return res.status(200).json({
@@ -987,13 +990,15 @@ exports.getAllProduct = catchAsync(async (req, res, next) => {
             docs,
             size: size.sort(),
             color: color.sort(),
-            url: req.protocol + '://' + req.get('host') + req.originalUrl
+            url: req.protocol + '://' + req.get('host') + req.originalUrl,
+            search: !!req.query.search
         });
 });
 
 // assign data for get a product
 exports.getAProduct = catchAsync(async (req, res, next) => {
-    const filterQur = req.from === 'web' ? { for: process.env.CATEGORYA } : [];
+    const filterQur =
+        req.from === 'web' ? { for: process.env.WEBSITE_CATEGORY } : [];
     const product = await productModel
         .findOne({
             slug: req.params.productId ?? req.params.slug,
@@ -1012,8 +1017,8 @@ exports.getAProduct = catchAsync(async (req, res, next) => {
 exports.getRecommendedProducts = catchAsync(async (req, res, next) => {
     let fors = [];
     if (req.from !== 'mobile') {
-        filterQuery = { 'productDetails.for': process.env.CATEGORYA };
-        fors = { for: process.env.CATEGORYA };
+        filterQuery = { 'productDetails.for': process.env.WEBSITE_CATEGORY };
+        fors = { for: process.env.WEBSITE_CATEGORY };
     }
     const recommendedProduct = await productModel.aggregate([
         { $match: { ...fors } },
@@ -1043,7 +1048,8 @@ exports.assignOrderProducts = catchAsync(async (req, res, next) => {
     if (!req.body?.length)
         return next(new AppError('Please select the product.', 400));
 
-    const filterQur = req.from === 'web' ? { for: process.env.CATEGORYA } : [];
+    const filterQur =
+        req.from === 'web' ? { for: process.env.WEBSITE_CATEGORY } : [];
 
     const cart = await Promise.all(
         req.body.map(async (el) => {
@@ -1052,10 +1058,16 @@ exports.assignOrderProducts = catchAsync(async (req, res, next) => {
                 verified: true,
                 ...filterQur
             });
+
             if (!product) return next(new AppError('Product not found.', 404));
 
             if (!el.quantity)
                 return next(new AppError('Please select the quantity.', 400));
+
+            if (!product.active)
+                return next(
+                    new AppError(`Product ${product.name} was out of stock.`)
+                );
 
             switch (product.productType) {
                 case 'single':
@@ -1455,7 +1467,7 @@ exports.orderProduct = catchAsync(async (req, res, next) => {
 exports.getMyOrders = catchAsync(async (req, res, next) => {
     const filterQur =
         req.from === 'web'
-            ? { 'productDetails.for': process.env.CATEGORYA }
+            ? { 'productDetails.for': process.env.WEBSITE_CATEGORY }
             : [];
 
     const data = await ordermodel.find({ userId: req.user._id, ...filterQur });
@@ -1466,7 +1478,7 @@ exports.getMyOrders = catchAsync(async (req, res, next) => {
 exports.getAOrder = catchAsync(async (req, res, next) => {
     const filterQur =
         req.from === 'web'
-            ? { 'productDetails.for': process.env.CATEGORYA }
+            ? { 'productDetails.for': process.env.WEBSITE_CATEGORY }
             : [];
 
     const data = await ordermodel.find({
@@ -1481,7 +1493,7 @@ exports.getAOrder = catchAsync(async (req, res, next) => {
 exports.cancelAOrder = catchAsync(async (req, res, next) => {
     const filterQur =
         req.from === 'web'
-            ? { 'productDetails.for': process.env.CATEGORYA }
+            ? { 'productDetails.for': process.env.WEBSITE_CATEGORY }
             : [];
     const order = await ordermodel.findOneAndUpdate(
         {
@@ -1514,13 +1526,24 @@ exports.cancelAOrder = catchAsync(async (req, res, next) => {
 
 // create new cart
 exports.createNewCart = catchAsync(async (req, res, next) => {
-    const filterQur = req.from === 'web' ? { for: process.env.CATEGORYA } : [];
+    const filterQur =
+        req.from === 'web' ? { for: process.env.WEBSITE_CATEGORY } : [];
     const product = await productModel.findOne({
         ...filterQur,
         ecmpeId: req.params.productId,
         verified: true
     });
 
+    let finalRs = {};
+    if (req.from === 'web') {
+        if (req.login) {
+            finalRs = { userId: req.user._id, userEId: req.user.ecmuId };
+        } else {
+            finalRs = { uId: req.cookies.uId };
+        }
+    } else {
+        finalRs = { userId: req.user._id, userEId: req.user.ecmuId };
+    }
     if (!product) return next(new AppError('Product not found.', 404));
 
     if (!req.body.quantity) req.body.quantity = 1;
@@ -1528,8 +1551,7 @@ exports.createNewCart = catchAsync(async (req, res, next) => {
     switch (product.productType) {
         case 'single':
             cart = {
-                userId: req.user._id,
-                userEId: req.user.ecmuId,
+                ...finalRs,
                 for: product.for,
                 productId: product._id,
                 productEId: product.ecmpeId,
@@ -1554,8 +1576,7 @@ exports.createNewCart = catchAsync(async (req, res, next) => {
                 colors = req.body.color;
             }
             cart = {
-                userId: req.user._id,
-                userEId: req.user.ecmuId,
+                ...finalRs,
                 for: product.for,
                 productId: product._id,
                 productEId: product.ecmpeId,
@@ -1582,8 +1603,7 @@ exports.createNewCart = catchAsync(async (req, res, next) => {
             else sizes = req.body.size;
 
             cart = {
-                userId: req.user._id,
-                userEId: req.user.ecmuId,
+                ...finalRs,
                 for: product.for,
                 productId: product._id,
                 productEId: product.ecmpeId,
@@ -1623,8 +1643,7 @@ exports.createNewCart = catchAsync(async (req, res, next) => {
             }
 
             cart = {
-                userId: req.user._id,
-                userEId: req.user.ecmuId,
+                ...finalRs,
                 for: product.for,
                 productId: product._id,
                 productEId: product.ecmpeId,
@@ -1640,7 +1659,7 @@ exports.createNewCart = catchAsync(async (req, res, next) => {
     }
 
     await cartModel.updateOne(
-        { productId: product._id, userId: req.user._id },
+        { productId: product._id, ...finalRs },
         { $set: cart },
         {
             upsert: true
@@ -1652,12 +1671,17 @@ exports.createNewCart = catchAsync(async (req, res, next) => {
 
 // my carts
 exports.myCarts = catchAsync(async (req, res, next) => {
-    const filterQur = req.from === 'web' ? { for: process.env.CATEGORYA } : [];
+    let filterQur = {};
+    if (req.from === 'web') {
+        filterQur.for = process.env.WEBSITE_CATEGORY;
+        if (req.login) {
+            filterQur.userId = req.user._id;
+        } else filterQur.uId = req.cookies.uId;
+    } else filterQur.userId = req.user._id;
 
     const carts = await cartModel.aggregate([
         {
             $match: {
-                userId: req.user._id,
                 type: 'cart',
                 ...filterQur
             }
@@ -1689,6 +1713,7 @@ exports.myCarts = catchAsync(async (req, res, next) => {
                     el = {
                         bannerImage: el.product.bannerImage,
                         name: el.product.name,
+                        active: el.product.active,
                         price: el.product.price,
                         discountPrice: el.product.discountPrice,
                         type: 'single',
@@ -1723,6 +1748,7 @@ exports.myCarts = catchAsync(async (req, res, next) => {
                         price: color.subDetails[0].price,
                         discountPrice: color.subDetails[0].discountPrice,
                         name: el.product.name,
+                        active: el.product.active,
                         color: color.color,
                         colorId: el.color,
                         type: 'colorOnly',
@@ -1759,6 +1785,7 @@ exports.myCarts = catchAsync(async (req, res, next) => {
                         price: size.price,
                         discountPrice: size.discountPrice,
                         name: el.product.name,
+                        active: el.product.active,
                         size: size.size,
                         sizeId: el.size,
                         type: 'sizeOnly',
@@ -1800,6 +1827,7 @@ exports.myCarts = catchAsync(async (req, res, next) => {
                                         colVals.imageGallery = els.imageGallery;
                                         colVals.color = els.color;
                                         colVals.name = el.product.name;
+                                        colVals.active = el.product.active;
                                         colVals.quantity = el.quantity;
                                         colVals.type = 'colorWithSize';
                                         colVals.id = el.ecmcmID;
@@ -1837,10 +1865,15 @@ exports.sendJsonForCart = (req, res) =>
 
 // delet my cart
 exports.deleteMyCart = catchAsync(async (req, res, next) => {
-    const filterQur = req.from === 'web' ? { for: process.env.CATEGORYA } : [];
+    let filterQur = {};
+    if (req.from === 'web') {
+        filterQur.for = process.env.WEBSITE_CATEGORY;
+        if (req.login) {
+            filterQur.userId = req.user._id;
+        } else filterQur.uId = req.cookies.uId;
+    } else filterQur.userId = req.user._id;
 
     const carts = await cartModel.findOneAndDelete({
-        userId: req.user._id,
         ...filterQur,
         ecmcmID: req.params.productId
     });
@@ -1852,7 +1885,8 @@ exports.deleteMyCart = catchAsync(async (req, res, next) => {
 
 // create new art
 exports.addWishList = catchAsync(async (req, res, next) => {
-    const filterQur = req.from === 'web' ? { for: process.env.CATEGORYA } : [];
+    const filterQur =
+        req.from === 'web' ? { for: process.env.WEBSITE_CATEGORY } : [];
     const product = await productModel.findOne({
         ...filterQur,
         ecmpeId: req.params.productId,
@@ -1882,7 +1916,8 @@ exports.addWishList = catchAsync(async (req, res, next) => {
 
 // my wishlit
 exports.getMyWishlist = catchAsync(async (req, res, next) => {
-    const filterQur = req.from === 'web' ? { for: process.env.CATEGORYA } : [];
+    const filterQur =
+        req.from === 'web' ? { for: process.env.WEBSITE_CATEGORY } : [];
 
     const wishlist = await wishlistModel.find({
         userId: req.user._id,
@@ -1902,7 +1937,8 @@ exports.sendWishlistJson = (req, res) =>
 
 // delet my cart
 exports.deleteWishLists = catchAsync(async (req, res, next) => {
-    const filterQur = req.from === 'web' ? { for: process.env.CATEGORYA } : [];
+    const filterQur =
+        req.from === 'web' ? { for: process.env.WEBSITE_CATEGORY } : [];
 
     const wishlits = await wishlistModel.findOneAndDelete({
         userId: req.user._id,
@@ -1916,7 +1952,8 @@ exports.deleteWishLists = catchAsync(async (req, res, next) => {
 });
 
 exports.getAdditionalProductDetails = catchAsync(async (req, res, next) => {
-    const filterQur = req.from === 'web' ? { for: process.env.CATEGORYA } : [];
+    const filterQur =
+        req.from === 'web' ? { for: process.env.WEBSITE_CATEGORY } : [];
     const product = await productModel
         .findOne({
             ecmpeId: req.params.productId,
@@ -1946,7 +1983,8 @@ exports.getAdditionalProductDetails = catchAsync(async (req, res, next) => {
 
 //
 exports.moveCartToCheckout = catchAsync(async (req, res, next) => {
-    const filterQur = req.from === 'web' ? { for: process.env.CATEGORYA } : [];
+    const filterQur =
+        req.from === 'web' ? { for: process.env.WEBSITE_CATEGORY } : [];
     const [carts, b] = await Promise.all([
         cartModel.find({
             userId: req.user._id,
@@ -1978,6 +2016,13 @@ exports.moveCartToCheckout = catchAsync(async (req, res, next) => {
                             return next(
                                 new AppError(
                                     'Quantity should be included.',
+                                    400
+                                )
+                            );
+                        if (!els.productId.active)
+                            return next(
+                                new AppError(
+                                    `Product ${els.productId.name} was out of stock.`,
                                     400
                                 )
                             );

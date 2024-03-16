@@ -26436,7 +26436,7 @@ exports.Axios = Axios;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.verifyOtp = exports.updateUser = exports.sendOtp = void 0;
+exports.verifyOtp = exports.updateUser = exports.sendOtp = exports.sendEmail = void 0;
 var _axios = _interopRequireDefault(require("axios"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
@@ -26575,6 +26575,48 @@ var updateUser = /*#__PURE__*/function () {
   };
 }();
 exports.updateUser = updateUser;
+var sendEmail = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(data) {
+    var _err$response4;
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
+        case 0:
+          _context4.prev = 0;
+          _context4.next = 3;
+          return (0, _axios.default)({
+            method: 'POST',
+            url: '/api/v1/user/send-mail',
+            data: data
+          }).then(function (res) {
+            if (res.data.status === 'Success') {
+              alert('Your requrest submited successfully.');
+              return location.reload();
+            }
+          });
+        case 3:
+          _context4.next = 12;
+          break;
+        case 5:
+          _context4.prev = 5;
+          _context4.t0 = _context4["catch"](0);
+          if (!(_context4.t0 !== null && _context4.t0 !== void 0 && (_err$response4 = _context4.t0.response) !== null && _err$response4 !== void 0 && (_err$response4 = _err$response4.data) !== null && _err$response4 !== void 0 && _err$response4.message)) {
+            _context4.next = 11;
+            break;
+          }
+          return _context4.abrupt("return", alert(_context4.t0.response.data.message));
+        case 11:
+          return _context4.abrupt("return", alert('Somthing went wrong. Please try again.'));
+        case 12:
+        case "end":
+          return _context4.stop();
+      }
+    }, _callee4, null, [[0, 5]]);
+  }));
+  return function sendEmail(_x5) {
+    return _ref4.apply(this, arguments);
+  };
+}();
+exports.sendEmail = sendEmail;
 },{"axios":"../../../../node_modules/axios/index.js"}],"controllers/productControllers.js":[function(require,module,exports) {
 "use strict";
 
@@ -27437,6 +27479,7 @@ var cancel_order = document.querySelectorAll('.cancel_order');
 var udpate_user = document.getElementById('udpate_user');
 var vendor_verification = document.getElementById('vendor_verification');
 var add_new_category = document.getElementById('add_new_category');
+var send_email = document.getElementById('send_email');
 var delete_category = document.querySelectorAll('.delete_category');
 var move_cart = document.querySelectorAll('.move_cart');
 if (send_otp) {
@@ -27769,6 +27812,24 @@ if (move_cart.length) {
     });
   });
 }
+if (send_email) {
+  send_email.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var form = new FormData();
+    form.append('firstName', document.getElementById('fname').value);
+    form.append('lastName', document.getElementById('flast').value);
+    form.append('email', document.getElementById('email').value);
+    form.append('phone', document.getElementById('phone').value);
+    form.append('order', document.getElementById('order').value);
+    if (document.getElementById('file').files) _toConsumableArray(document.getElementById('file').files).map(function (el) {
+      console.log(el);
+      form.append('file', el);
+    });
+    form.append('message', document.getElementById('message').value);
+    form.append('category', document.querySelector('input[name="flexRadioDefault"]:checked').value);
+    return (0, _sharedControllers.sendEmail)(form);
+  });
+}
 },{"core-js/actual":"../../../../node_modules/core-js/actual/index.js","regenerator-runtime/runtime.js":"../../../../node_modules/regenerator-runtime/runtime.js","./controllers/sharedControllers":"controllers/sharedControllers.js","./controllers/productControllers":"controllers/productControllers.js","./controllers/orderControllers":"controllers/orderControllers.js","./controllers/adminControllers":"controllers/adminControllers.js"}],"../../../../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -27794,7 +27855,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55483" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63448" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

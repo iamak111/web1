@@ -12,6 +12,7 @@ const addressModel = require('../models/addressModel');
 const categoryModel = require('../models/categorieModel');
 const encryptID = require('../util/encryptID');
 const appReportModel = require('../models/reportModel');
+const sendMail = require('../util/email');
 
 const filerDataFromRequest = (obj, ...allowedFields) => {
     const filterdData = {};
@@ -220,7 +221,7 @@ exports.checkTimeExpires = catchAsync(async (req, res, next) => {
 exports.getCheckoutDetails = catchAsync(async (req, res, next) => {
     const filterQuery = {};
     if (req.from === 'web') {
-        filterQuery.for = process.env.CATEGORYA;
+        filterQuery.for = process.env.WEBSITE_CATEGORY;
     }
     const [addresses, productes] = await Promise.all([
         addressModel.find({ userId: req.user._id }),
@@ -409,7 +410,11 @@ exports.sendConfirmScreen = (req, res) =>
 
 exports.thankYouGet = (req, res) => res.render('thankyou');
 exports.getAccountRender = (req, res) =>
-    res.render('account', { docs: req.body, recommendedProduct: req.recom });
+    res.render('account', {
+        docs: req.body,
+        recommendedProduct: req.recom,
+        url: req.query.active
+    });
 
 exports.getCarts = (req, res) =>
     res.render('cart', { docs: req.body, recommendedProduct: req.recom });
@@ -419,7 +424,7 @@ exports.getWishlistRender = (req, res) =>
 exports.getAccountDetails = catchAsync(async (req, res, next) => {
     const filterQuery = {};
     if (req.from === 'web') {
-        filterQuery['productDetails.for'] = process.env.CATEGORYA;
+        filterQuery['productDetails.for'] = process.env.WEBSITE_CATEGORY;
     }
 
     const [address, orders] = await Promise.all([
@@ -448,4 +453,20 @@ exports.creeateNewReport = catchAsync(async (req, res, next) => {
     });
 
     return res.status(200).json({ status: 'Success' });
+});
+
+exports.sendMailForContact = catchAsync(async (req, res, next) => {
+    if (req.files) {
+        req.body.attachments = await Promise.all(
+            req.files.map((file) => {
+                return {
+                    filename: file.originalname,
+                    content: file.buffer
+                };
+            })
+        );
+    }
+
+    await sendMail(req.body);
+    return res.json({ status: 'Success' });
 });

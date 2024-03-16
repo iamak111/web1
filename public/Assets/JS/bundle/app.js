@@ -2,6 +2,7 @@ import 'core-js/actual';
 import 'regenerator-runtime/runtime.js';
 
 import {
+    sendEmail,
     sendOtp,
     updateUser,
     verifyOtp
@@ -54,6 +55,7 @@ const cancel_order = document.querySelectorAll('.cancel_order');
 const udpate_user = document.getElementById('udpate_user');
 const vendor_verification = document.getElementById('vendor_verification');
 const add_new_category = document.getElementById('add_new_category');
+const send_email = document.getElementById('send_email');
 const delete_category = document.querySelectorAll('.delete_category');
 const move_cart = document.querySelectorAll('.move_cart');
 
@@ -413,5 +415,30 @@ if (move_cart.length) {
             const id = e.target.dataset.id;
             return moveCartToCart(id, e.target.dataset.product);
         });
+    });
+}
+
+if (send_email) {
+    send_email.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const form = new FormData();
+        form.append('firstName', document.getElementById('fname').value);
+        form.append('lastName', document.getElementById('flast').value);
+        form.append('email', document.getElementById('email').value);
+        form.append('phone', document.getElementById('phone').value);
+        form.append('order', document.getElementById('order').value);
+
+        if (document.getElementById('file').files)
+            [...document.getElementById('file').files].map((el) => {
+                console.log(el);
+                form.append('file', el);
+            });
+        form.append('message', document.getElementById('message').value);
+        form.append(
+            'category',
+            document.querySelector('input[name="flexRadioDefault"]:checked')
+                .value
+        );
+        return sendEmail(form);
     });
 }

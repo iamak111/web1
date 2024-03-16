@@ -11,6 +11,7 @@ const catchAsync = require('../util/catchAsync');
 const AppError = require('../util/appError');
 // const sendSMS = require('../util/sms');
 const encryptID = require('../util/encryptID');
+const cartModel = require('../models/cartModel');
 
 // create JWT
 const signJWT = (id) =>
@@ -86,6 +87,78 @@ exports.protect = catchAsync(async (req, res, next) => {
     next();
 });
 
+exports.protectCart = catchAsync(async (req, res, next) => {
+    let token;
+    if (req.headers.jwt) {
+        token = req.headers.jwt;
+        req.from = 'mobile';
+    } else if (req.cookies.jwt) {
+        token = req.cookies.jwt;
+        req.from = 'web';
+    }
+    if (req.from === 'mobile') {
+        if (!token) {
+            return next(
+                new AppError(
+                    'You are not loggedin. Please login and try to access the page.',
+                    401
+                )
+            );
+        }
+        let decode = '';
+        try {
+            decode = await promisify(jwt.verify)(
+                token,
+                process.env.JSON_SECRET
+            );
+        } catch (err) {
+            return next(
+                new AppError(
+                    'You are not loggedin. Please login and try to access the page.',
+                    401
+                )
+            );
+        }
+
+        const freshUser = await userModel.findById(decode.id);
+        if (!freshUser) {
+            return next(
+                new AppError(
+                    'The user no longer exist. please create a new account',
+                    401
+                )
+            );
+        }
+
+        req.user = freshUser;
+        next();
+    } else {
+        req.from = 'web';
+        const id = await encryptID();
+        if (req.cookies.jwt) {
+            try {
+                const decode = await promisify(jwt.verify)(
+                    req.cookies.jwt,
+                    process.env.JSON_SECRET
+                );
+                const freshUser = await userModel.findById(decode.id);
+                if (!freshUser) {
+                    res.cookie('uId', id);
+                    return next();
+                }
+                req.login = true;
+                req.user = freshUser;
+                res.locals.user = freshUser;
+                return next();
+            } catch (err) {
+                return next();
+            }
+        }
+        if (!req.cookies.uId) res.cookie('uId', id);
+        next();
+    }
+});
+
 exports.verifyVendor = (req, res, next) => {
     if (req.user.accountVerification !== 'accepted')
         return next(new AppError('Invalid vendor.', 400));
@@ -94,6 +167,7 @@ exports.verifyVendor = (req, res, next) => {
 
 exports.isLoggedin = async (req, res, next) => {
     req.from = 'web';
+    const id = await encryptID();
     if (req.cookies.jwt) {
         try {
             const decode = await promisify(jwt.verify)(
@@ -102,18 +176,18 @@ exports.isLoggedin = async (req, res, next) => {
             );
             const freshUser = await userModel.findById(decode.id);
             if (!freshUser) {
+                res.cookie('uId', id);
                 return next();
             }
-            if (freshUser.checkPassAfterToken(decode.iat)) {
-                return next();
-            }
-
+            req.login = true;
+            req.user = freshUser;
             res.locals.user = freshUser;
             return next();
         } catch (err) {
             return next();
         }
     }
+    if (!req.cookies.uId) res.cookie('uId', id);
     next();
 };
 // restrict user
@@ -194,5 +268,53 @@ exports.verifyUserOtp = catchAsync(async (req, res, next) => {
     user.phoneVerificationToken = undefined;
     user.phoneVerificationTokenExpires = undefined;
     await user.save({ validateBeforeSave: false });
+    if (req.cookies.uId) {
+        const carts = await cartModel
+            .find({
+                uId: req.cookies.uId,
+                type: 'cart',
+                for: process.env.WEBSITE_CATEGORY
+            })
+            .distinct('productEId');
+        if (carts.length) {
+            const userCart = await cartModel
+                .find({
+                    userId: user._id,
+                    type: 'cart',
+                    for: process.env.WEBSITE_CATEGORY
+                })
+                .distinct('productEId');
+            console.log(carts);
+            console.log(userCart);
+            const filteredCarts = [];
+            const removeCart = [];
+            await Promise.all(
+                carts.map((el) => {
+                    if (!userCart.includes(el)) {
+                        filteredCarts.push(el);
+                    } else {
+                    }
+                })
+            );
+            if (filteredCarts.length) {
+                await Promise.all(
+                    filteredCarts.map(async (el) => {
+                        await cartModel.findOneAndUpdate(
+                            {
+                                uId: req.cookies.uId,
+                                productEId: el
+                            },
+                            {
+                                userId: user._id,
+                                userEId: user.ecmuId,
+                                uId: '-'
+                            }
+                        );
+                    })
+                );
+            }
+            await cartModel.deleteMany({ uId: req.cookies.uId });
+        }
+    }
     return sendJWT(user, 200, res);
 });

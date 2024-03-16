@@ -58,3 +58,22 @@ export const updateUser = async (data) => {
         } else return alert('Somthing went wrong. Please try again.');
     }
 };
+
+export const sendEmail = async (data) => {
+    try {
+        await axios({
+            method: 'POST',
+            url: '/api/v1/user/send-mail',
+            data
+        }).then((res) => {
+            if (res.data.status === 'Success') {
+                alert('Your requrest submited successfully.');
+                return location.reload();
+            }
+        });
+    } catch (err) {
+        if (err?.response?.data?.message) {
+            return alert(err.response.data.message);
+        } else return alert('Somthing went wrong. Please try again.');
+    }
+};

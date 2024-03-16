@@ -50,7 +50,9 @@ exports.sendBodyDocs = (req, res) =>
     res.status(200).json({ status: 'Success', docs: req.body });
 
 exports.getCategoires = catchAsync(async (req, res, next) => {
-    const category = await categorieModel.find({ for: process.env.CATEGORYA });
+    const category = await categorieModel.find({
+        for: process.env.WEBSITE_CATEGORY
+    });
     res.locals.category = category;
 
     next();
@@ -299,11 +301,16 @@ exports.getAProduct = (req, res, next) =>
 
 // get cart price
 exports.getCartPrice = catchAsync(async (req, res, next) => {
-    if (!res.locals?.user) return next();
+    let finalRs = {};
+    if (req.login) {
+        finalRs = { userId: req.user._id, userEId: req.user.ecmuId };
+    } else {
+        finalRs = { uId: req.cookies.uId };
+    }
     const carts = await cartModel.aggregate([
         {
             $match: {
-                userId: res.locals.user._id,
+                ...finalRs,
                 type: 'cart',
                 for: process.env.WEBSITE_CATEGORY
             }
@@ -479,3 +486,5 @@ exports.getCartPrice = catchAsync(async (req, res, next) => {
 
     return next();
 });
+
+exports.getContactus = (req, res) => res.render('contactUs');

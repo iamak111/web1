@@ -37,27 +37,28 @@ block block
 
         // Accunt Management Section
         .container-xl.mt-4
+            -const x = url === "order";
             div
                 // Mobile Nav
                 ul#v-pills-tab.nav.nav-pills.nav-fill.mb-3.display-none-web(role='tablist')
                     li.nav-item(role='presentation')
-                        button#v-pills-home-tab.nav-link.active(data-bs-toggle='pill' data-bs-target='#v-pills-home' type='button' role='tab' aria-controls='v-pills-home' aria-selected='true')
+                        button#v-pills-home-tab.nav-link(class=`${x ? "" : "active"}` data-bs-toggle='pill' data-bs-target='#v-pills-home' type='button' role='tab' aria-controls='v-pills-home' aria-selected='true')
                             | Profile
                     li.nav-item(role='presentation')
                         button#v-pills-profile-tab.nav-link(data-bs-toggle='pill' data-bs-target='#v-pills-profile' type='button' role='tab' aria-controls='v-pills-profile' aria-selected='false')
                             | Manage Address
                     li.nav-item(role='presentation')
-                        button#v-pills-disabled-tab.nav-link(data-bs-toggle='pill' data-bs-target='#v-pills-disabled' type='button' role='tab' aria-controls='v-pills-disabled' aria-selected='false')
+                        button#v-pills-disabled-tab.nav-link(class=`${x ? "active" : ""}`  data-bs-toggle='pill' data-bs-target='#v-pills-disabled' type='button' role='tab' aria-controls='v-pills-disabled' aria-selected='false')
                             | Manage Order
                     li.nav-item(role='presentation')
-                        button#v-pills-contact-tab.nav-link(type='button' role='tab' aria-controls='v-pills-settings' aria-selected='false')
+                        a#v-pills-contact-tab.nav-link(type='button' role='tab' aria-controls='v-pills-settings' aria-selected='false' href="/logout")
                             | Logout
                 hr
                 .d-flex.align-items-start
                     // Web Nav
                     #v-pills-tabContent.tab-content.ms-3.bg-white.p-3.width-100
                         // Profile Section
-                        #v-pills-home.tab-pane.fade.show.active(role='tabpanel' aria-labelledby='v-pills-home-tab' tabindex='0')
+                        #v-pills-home.tab-pane.fade(class=`${x ? "" : "show active"}` role='tabpanel' aria-labelledby='v-pills-home-tab' tabindex='0')
                             .d-flex
                                 div
                                     img.m-0.account-profile-img(src=user.profile alt='mouse corsair')
@@ -195,7 +196,7 @@ block block
 
 
                         // Orders Section
-                        #v-pills-disabled.tab-pane.fade(role='tabpanel' aria-labelledby='v-pills-disabled-tab' tabindex='0')
+                        #v-pills-disabled.tab-pane.fade(class=`${x ? "show active" : ""}`  role='tabpanel' aria-labelledby='v-pills-disabled-tab' tabindex='0')
                             div
                             h6.fw-bold.ms-4.mt-2.text-dark My latest Order
                             each doc in docs.orders
