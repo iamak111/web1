@@ -1,0 +1,171 @@
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap");
+
+:root {
+  --MAIN_COLOR: #1e73be;
+  --SECOND_COLOR: #d64198;
+  --GREEN_COLOR: #81d742;
+  --GRAY_COLOR: #747171;
+  --WHITE_COLOR: #ffffff;
+  --MAIN_LIGHT_COLOR: #57a4e7;
+  --BLACK_COLOR: #000000;
+  --LEIGH_GRAY: #9b9a9a56;
+  --LIGHT_BLACK: #292828;
+}
+
+body {
+  background-color: var(--WHITE_COLOR);
+}
+
+a {
+  text-decoration: none;
+}
+
+li {
+  list-style: none;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.mt-05 {
+  margin-top: 2.5px;
+}
+
+.main-color {
+  color: var(--MAIN_COLOR) !important;
+  /* color: red !important; */
+}
+
+.light-black {
+  color: var(--LIGHT_BLACK) !important;
+}
+
+.text-gray {
+  color: var(--GRAY_COLOR);
+}
+
+.main_background {
+  background-color: var(--MAIN_COLOR);
+}
+
+.fs-small {
+  font-size: 14px !important;
+}
+
+.nav-link {
+  display: block;
+  position: relative;
+  padding: 0.2em 0;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0.2em;
+  background-color: var(--MAIN_COLOR) !important;
+  opacity: 0;
+  transition: opacity 300ms, transform 300ms;
+}
+
+.dropdown-toggle::after {
+  color: var(--MAIN_COLOR);
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+  margin-top: 0; /* remove the gap so it doesn't close */
+}
+
+.nav-link:hover::after,
+.nav-link:focus::after {
+  opacity: 1;
+  transform: translate3d(0, 0.2em, 0);
+  -webkit-transform: translate3d(0, 0.2em, 0);
+  -moz-transform: translate3d(0, 0.2em, 0);
+  -ms-transform: translate3d(0, 0.2em, 0);
+  -o-transform: translate3d(0, 0.2em, 0);
+}
+
+.nav-item .nav-link::after {
+  opacity: 1;
+  transform: scale(0);
+  transform-origin: center;
+}
+
+.nav-item .nav-link:hover::after,
+.nav-item .nav-link:focus::after {
+  transform: scale(1);
+}
+
+.navbar-toggler:focus,
+.navbar-toggler:active,
+.navbar-toggler-icon:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.dropdown-menu {
+  width: 280px !important;
+  top: 40px;
+  padding: 20px !important;
+  right: 0px;
+}
+
+.btn-main {
+  background-color: var(--MAIN_COLOR);
+  color: var(--WHITE_COLOR);
+  border-color: var(--MAIN_COLOR) !important;
+}
+
+.btn-main:hover {
+  background-color: #1062aa;
+}
+
+.btn-sec {
+  background-color: var(--SECOND_COLOR);
+  color: var(--WHITE_COLOR);
+  border-color: var(--SECOND_COLOR) !important;
+}
+
+.btn-sec:hover {
+  background-color: #d83494;
+}
+
+.has-search .form-control {
+  padding-left: 2.375rem;
+}
+
+.has-search .form-control-feedback {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  width: 2.375rem;
+  height: 2.375rem;
+  line-height: 2.375rem;
+  text-align: center;
+  pointer-events: none;
+  color: var(--GREEN_COLOR);
+}
+
+.form-check-input:focus {
+  box-shadow: none;
+  border-color: var(--MAIN_COLOR);
+}
+
+.form-control:focus {
+  border-color: var(--GRAY_COLOR);
+  box-shadow: rgba(67, 71, 85, 0.27) 0px 0px 0.25em,
+    rgba(90, 125, 188, 0.05) 0px 0.25em 1em;
+}
+
+.form-control {
+  border-color: var(--LEIGH_GRAY) !important;
+}
+
+.hover-colse:hover {
+  color: #000000 !important;
+}

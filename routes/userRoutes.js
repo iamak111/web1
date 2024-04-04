@@ -1,24 +1,24 @@
 // import expess
-const express = require('express');
-const multer = require('multer');
+const express = require("express");
+const multer = require("multer");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // import user controller
-const userController = require('../controllers/userController');
+const userController = require("../controllers/userController");
 // import auth controller
-const authController = require('../controllers/authControllers');
-const viewController = require('../controllers/viewController');
-const productControllers = require('../controllers/productControllers');
+const authController = require("../controllers/authControllers");
+const viewController = require("../controllers/viewController");
+const productControllers = require("../controllers/productControllers");
 
 // set router
 const router = express.Router();
 
 // set routes
 // router.route('/').get(authController.protect, userController.getAlluser);
-router.post('/user-otp', authController.userOtpGenerate);
-router.patch('/verify-user', authController.verifyUserOtp);
-router.post('/send-mail', upload.any(), userController.sendMailForContact);
+router.post("/user-otp", authController.userOtpGenerate);
+router.patch("/verify-user", authController.verifyUserOtp);
+router.post("/send-mail", upload.any(), userController.sendMailForContact);
 // router.route('/signUp').post(authController.signup);
 
 // router.route('/login').post(authController.login);
@@ -30,11 +30,11 @@ router.post('/send-mail', upload.any(), userController.sendMailForContact);
 //     );
 
 // get user
-router.get('/get-me', authController.protect, userController.getUser);
+router.get("/get-me", authController.protect, userController.getUser);
 
 router
-    .route('/update-me')
-    .patch(authController.protect, userController.updateUser);
+  .route("/update-me")
+  .patch(authController.protect, userController.updateUser);
 
 // router.patch(
 //     '/vendor-verification-docs',
@@ -46,136 +46,142 @@ router
 
 // order product
 router.post(
-    '/product/assign-order',
-    authController.protect,
-    productControllers.assignOrderProducts
+  "/product/assign-order",
+  authController.protect,
+  productControllers.assignOrderProducts
 );
 
 // order product
 router.post(
-    '/product/order/:addressId',
-    authController.protect,
-    productControllers.orderProduct
+  "/product/order/:addressId",
+  authController.protect,
+  productControllers.orderProduct
 );
 
 // get my orders
 router.get(
-    '/orders/my-orders',
-    authController.protect,
-    productControllers.getMyOrders
+  "/orders/my-orders",
+  authController.protect,
+  productControllers.getMyOrders
 );
 
 // get a order
 router.get(
-    '/orders/my-order/:orderId',
-    authController.protect,
-    productControllers.getAOrder
+  "/orders/my-order/:orderId",
+  authController.protect,
+  productControllers.getAOrder
 );
 
 // cancel order
 router.patch(
-    '/orders/cancel-order/:orderId',
-    authController.protect,
-    productControllers.cancelAOrder
+  "/orders/cancel-order/:orderId",
+  authController.protect,
+  productControllers.cancelAOrder
 );
 
 // my cart
 router.get(
-    '/cart/my-carts',
-    authController.protect,
-    productControllers.myCarts,
-    productControllers.sendJsonForCart
+  "/cart/my-carts",
+  authController.protect,
+  productControllers.myCarts,
+  productControllers.sendJsonForCart
 );
 
 // cart checkout
 router.post(
-    '/cart/checkout',
-    authController.protect,
-    productControllers.moveCartToCheckout
+  "/cart/checkout",
+  authController.protect,
+  productControllers.moveCartToCheckout
 );
 // new cart
 router
-    .route('/cart/:productId')
-    .post(authController.protectCart, productControllers.createNewCart)
-    .delete(authController.protectCart, productControllers.deleteMyCart);
+  .route("/cart/:productId")
+  .post(authController.protectCart, productControllers.createNewCart)
+  .delete(authController.protectCart, productControllers.deleteMyCart);
 
 router
-    .route('/wishlist/:productId')
-    .post(authController.protect, productControllers.addWishList)
-    .delete(authController.protect, productControllers.deleteWishLists);
+  .route("/wishlist/:productId")
+  .post(authController.protect, productControllers.addWishList)
+  .delete(authController.protect, productControllers.deleteWishLists);
 
 router.get(
-    '/wishlist/my-wishlist',
-    authController.protect,
-    productControllers.getMyWishlist,
-    productControllers.sendWishlistJson
+  "/wishlist/my-wishlist",
+  authController.protect,
+  productControllers.getMyWishlist,
+  productControllers.sendWishlistJson
 );
 
 router.post(
-    '/address',
-    authController.protect,
-    userController.getuserId,
-    userController.addNewAddress
+  "/address",
+  authController.protect,
+  userController.getuserId,
+  userController.addNewAddress
 );
 router.get(
-    '/address/my-address',
-    authController.protect,
-    viewController.getAddress2,
-    viewController.myAddress
+  "/address/my-address",
+  authController.protect,
+  viewController.getAddress2,
+  viewController.myAddress
 );
 router.patch(
-    '/address/:id',
-    authController.protect,
-    userController.updateUserAddress
+  "/address/:id",
+  authController.protect,
+  userController.updateUserAddress
 );
 router.delete(
-    '/address/:id',
-    authController.protect,
-    userController.deleteUserAddress
+  "/address/:id",
+  authController.protect,
+  userController.deleteUserAddress
+);
+
+router.delete(
+  "/order-address/",
+  authController.protect,
+  userController.addressForOrder
 );
 
 router.post(
-    '/isValidAuth',
-    authController.protect,
-    authController.verifiedUser
+  "/isValidAuth",
+  authController.protect,
+  authController.verifiedUser
 );
 
-router.post('/report', authController.protect, userController.creeateNewReport);
+router.post("/report", authController.protect, userController.creeateNewReport);
 
 router
-    .route('/home')
-    .get(
-        viewController.top3SellingCategories,
-        viewController.getTopCategories,
-        viewController.getCategories,
-        viewController.sendBodyDocs
-    );
+  .route("/home")
+  .get(
+    viewController.top3SellingCategories,
+    viewController.getTopCategories,
+    viewController.getCategories,
+    viewController.sendBodyDocs
+  );
 router.get(
-    '/shop',
-    authController.protect,
-    viewController.getCategoires,
-    productControllers.getAllProduct
+  "/shop",
+  authController.protect,
+  viewController.getCategoires,
+  productControllers.getAllProduct
 );
 
 router.get(
-    '/shop/product/:slug',
-    authController.protect,
-    productControllers.getAProduct,
-    viewController.sendBodyDocs
+  "/shop/product/:slug",
+  authController.protect,
+  productControllers.getAProduct,
+  viewController.sendBodyDocs
 );
 
 router.get(
-    '/order/checkout',
-    authController.protect,
-    userController.getCheckoutDetails,
-    viewController.sendBodyDocs
+  "/order/checkout",
+  authController.protect,
+  userController.getCheckoutDetails,
+  viewController.sendBodyDocs
 );
 
 router.get(
-    '/account',
-    authController.protect,
-    userController.getAccountDetails,
-    viewController.sendBodyDocs
+  "/account",
+  authController.protect,
+  userController.getAccountDetails,
+  viewController.sendBodyDocs
 );
 
 module.exports = router;

@@ -1,50 +1,80 @@
 div
   p.fs-small.p-1.fw-bold.text-center.text-white.main_background
     | FREE STANDARD SHIPPING OVER $99
-nav.bg-white.sticky-top.navbar.navbar-expand-lg.bg-body-tertiary.shadow
+nav.navbar.navbar-expand-lg.sticky-top.shadow-sm.bg-white
   .container-fluid
     a.navbar-brand(href='/')
-      img.d-inline-block.align-text-top(src='/Assets/Images/TheMobstar.png' alt='Logo' height='40')
-    button.navbar-toggler.border-0(type='button' data-bs-toggle='collapse' data-bs-target='#navbarSupportedContent' aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation')
+      img(src='/Assets/Images/TheMobstar.png' alt='Bootstrap' height='40')
+    button.navbar-toggler(type='button' data-bs-toggle='collapse' data-bs-target='#navbarSupportedContent' aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation')
       span.navbar-toggler-icon
     #navbarSupportedContent.collapse.navbar-collapse
       ul.navbar-nav.me-auto.mb-2.mb-lg-0
         li.nav-item
-          a.nav-link.text-uppercase.fw-medium(aria-current='page' href='/') Home
+          a.nav-link.text-dark.active(aria-current='page' href='/') HOME
         li.nav-item
-          a.nav-link.text-uppercase.fw-medium(href='/shop') Shop
+          a.nav-link.text-dark(href='/shop') SHOP
         li.nav-item
-          a.nav-link.text-uppercase.fw-medium(href="/account/?active=order") Track and Drop
+          a.nav-link.text-dark(aria-disabled='true' href='/account/?active=order') TRACK AND DROP
         li.nav-item
-          a.nav-link.text-uppercase.fw-medium(href="/contact-us") Contact Us
-      form.d-flex(role='search')
-        input.form-control.me-2#search(type='search' placeholder='Search' aria-label='Search')
-        button.btn.btn-outline-warning.search_prdocuts(type='button')
-          i.bi.bi-search
-      ul.navbar-nav.mb-2.mb-lg-0.me-2
-        if !user
-          li.nav-item
-            a.nav-link.text-uppercase.fw-medium(href='/login') Login
-        else 
-          li.nav-item
-            a.nav-link.text-uppercase.fw-medium(href='/account') Account
-        li.nav-item.d-flex
-          a.nav-link.text-uppercase.fw-medium(href="/cart")
-            | Cart / 
-            span.fw-bold.text-dark $#{cart || 0}.00
-          i.bi.bi-bag.fs-5
+          a.nav-link.text-dark(href='/contact-us' aria-disabled='true') CONTACT US
+      ul.navbar-nav
+        li.nav-item.dropdown
+          a.nav-link.dropdown-toggle(href='#' role='button' data-bs-toggle='dropdown' aria-expanded='false')
+            i.bi.bi-search.fw-bold.fs-5.text-dark
+          .dropdown-menu.shadow.border-0(style='width: 300px !important')
+            .input-group
+              input.form-control#search(type='search' placeholder='Search' aria-label='Search')
+              .input-group-append
+                button.btn.btn-secondary.search_prdocuts(type='button')
+                  i.bi.bi-search
         li.nav-item
-          a.nav-link.text-uppercase.fw-medium(href='/wishlist') Wishlist
-        if user
-          li.nav-item
-            a.nav-link.text-uppercase.fw-medium(href='/logout') Logout
+          if !user
+            a.nav-link.border-end.text-dark(href='/login') LOGIN
+          else
+            a.nav-link.border-end.text-dark(href='/account') ACCOUNT
+        li.nav-item.dropdown.position-relative
+          a.nav-link.dropdown-toggle(href='/cart' role='button' data-bs-toggle='dropdown' aria-expanded='false')
+            | CART / 
+            span.fw-bold $#{!!cart ? cart : 0}.00
+            i.bi.bi-bag.main-color
+          p.position-absolute.end-0.top-0.bg-primary.rounded-circle.text-white(style='font-size: 10px; padding: 2px 6px')
+            | #{carts.length}
+          .dropdown-menu.shadow.border-0.text-center(style="max-height:75vh; overflow-x: hidden; overflow-y: scroll;  ")
+            if !carts.length
+              i.bi.bi-bag.fs-1.fw-bold.text-secondary.text-center.m-auto
+              p.text-center.text-secondary
+                | No products in the cart.
+              a.p-2.text-uppercase.rounded-1.mt-2.fs-small.text-white.btn-main.align-items-center(href='/shop') RETURN TO SHOP
+            else
+                each doc in carts
+                  .d-flex.mt-2
+                    div
+                      img(src=doc.product.bannerImage alt='product name' style='width: 60px')
+                    div.fw-bold
+                      p.text-dark.text-start.m-0.p-0.ms-1(style='width: 150px')
+                        | #{doc.product.name}
+                      p.text-dark.text-start.m-0.p-0.ms-1(style='width: 150px')
+                        | $#{doc.product.discountPrice ? doc.product.discountPrice : doc.product.price }
+                    div
+                      a.text-secondary.hover-colse.remove_cart(href='#' style='width: 10px' data-id=doc.ecmcmID)
+                        i.bi.bi-x-circle
+            .sticky-btn
+              hr
+              .d-flex.justify-content-between.fw-bold
+                p.p-0.m-0 Sub total
+                p.p-0.m-0 $#{!!cart ? cart : 0}.00
+              hr
+              a.p-2.text-uppercase.rounded-1.mt-2.fs-small.text-white.btn-main.align-items-center.w-100(href='/cart' style='display: block') View Cart
+              //- a.p-2.text-uppercase.rounded-1.mt-2.fs-small.text-white.btn-sec.align-items-center.w-100(href='#' style='display: block') CHECKOUT NOW
+        li.nav-item
+          a.nav-link.text-dark(href='/wishlist' aria-disabled='true') WISHLIST
       #search_product 
-          script.
-            document.querySelector('.search_prdocuts').addEventListener('click',e=>{
-              e.preventDefault();
-              let updatedUrl = window.location.pathname === "/shop" ? new URL(window.location.href) : new URL(`${window.location.origin}/shop`)
-              const value = document.getElementById('search').value;
-              updatedUrl.searchParams.set('search', value)
-              return location.assign(updatedUrl)
-            })
-            document.getElementById('search_product').remove()
+        script.
+          document.querySelector('.search_prdocuts').addEventListener('click',e=>{
+            e.preventDefault();
+            let updatedUrl = window.location.pathname === "/shop" ? new URL(window.location.href) : new URL(`${window.location.origin}/shop`)
+            const value = document.getElementById('search').value;
+            updatedUrl.searchParams.set('search', value)
+            return location.assign(updatedUrl)
+          })
+          document.getElementById('search_product').remove()

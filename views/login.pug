@@ -2,32 +2,47 @@ extends layout/base
 
 block block 
   // Breadcrumb Section
+  .h3.text-secondary.text-center.p-3.bg-light MY ACCOUNT
   .breadcrumb-style
     nav.container-xl.mt-1(aria-label='breadcrumb')
       ol.breadcrumb
         li.breadcrumb-item
           a.text-secondary(href='/') Home
         li.breadcrumb-item.active(aria-current='page') Login
-  .m-auto
-    .input-shadow.rounded.bg-white.w-100.mt-4.mb-4.width-100.mt-5
-      .p-5.d-flex.justify-content-center
-        .w-75.d-flex.justify-content-center
-          .shadow.w-75.pt-5.pb-5 
-            form#send_otp
-              div.w-75.m-auto.mb-3
-                h5.text-dark.fw-bold Login 
-                  span.fs-6.text-secondary or 
-                  span.fs-5.fw-bold.text-dark Singup 
-              div.w-75.m-auto.mb-1
-                label.fw-bold Mobil Number * :
-              input#phone_num.form-control.w-75.m-auto.mb-3.bg-light(type='text' placeholder='Mobile Number')       
-              div.w-75.m-auto.mb-3.d-grid    
-                button.buy-now.mb-3.btn-block(type="submit") Generate OTP
-              #otp_section.d-none 
-                div.w-75.m-auto.mb-1
-                  label.fw-bold OTP Number * :
-                input#verification_otp.form-control.w-75.m-auto.mb-3.bg-light(type='text' placeholder='Enter OTP')
-                div.w-75.m-auto.mb-3.d-grid    
-                  button#verify_otp.buy-now(type="button") LOGIN
+  .container.pt-5.pb-5
+    .row
+      .col-sm-6.border-end
+        form#send_otp
+          div
+            h5.text-secondary.text-uppercase.mb-4 Login 
+          div.w-75.mb-1
+            label.fw-bold.mb-1 Mobil Number * 
+          input#phone_num.form-control.w-75.mb-3.bg-light(type='text' placeholder='Mobile Number')       
+          div.w-75.mb-3.d-grid    
+            button.buy-now.mb-3.btn-block.w-50(type="submit") Generate OTP
+          #otp_section.d-none 
+            div.w-75.mb-1
+              label.fw-bold OTP Number * :
+            input#verification_otp.form-control.w-75.mb-3.bg-light(type='text' placeholder='Enter OTP')
+            div.w-75.mb-3.d-grid    
+              button#verify_otp.buy-now.mb-3.btn-block.w-50(type="button") LOGIN
+      .col-sm-6.ps-5
+        form#send_otpx
+          div
+            h5.text-secondary.text-uppercase.mb-4 Register 
+          div.w-75.mb-1
+            label.fw-bold.mb-1 User name * 
+          input#user_namex.form-control.w-75.mb-3.bg-light(type='text' placeholder='User name')       
+          div.w-75.mb-1
+            label.fw-bold.mb-1 Mobil Number * 
+          input#phone_numx.form-control.w-75.mb-3.bg-light(type='text' placeholder='Mobile Number')       
+          div.w-75.mb-3.d-grid    
+            button.buy-now.mb-3.btn-block.w-50(type="submit") Generate OTP
+          #otp_sectionx.d-none 
+            div.w-75.mb-1
+              label.fw-bold OTP Number * :
+            input#verification_otpx.form-control.w-75.mb-3.bg-light(type='text' placeholder='Enter OTP')
+            div.w-75.mb-3.d-grid    
+              button#verify_otpx.buy-now.mb-3.btn-block.w-50(type="button") Sign Up
 
 
