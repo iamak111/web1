@@ -401,7 +401,8 @@ option:hover {
 }
 
 .account-card:hover {
-  background-color: var(--MAIN_LIGHT_COLOR);
+  background-color: gray !important;
+  color: #fff !important;
 }
 
 /* Order Track Style */
@@ -538,4 +539,48 @@ option:hover {
   text-decoration: none;
   display: block;
   padding-bottom: 11px;
+}
+
+.a-nav.active {
+  background-color: #fff !important;
+  border-bottom: #cfcfcf solid 1px !important;
+  border-radius: 0;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  width: 100%;
+  color: #747171 !important;
+  padding: 10px 0px 10px 0px;
+  text-transform: uppercase;
+  border-right: #0b66b6 2px solid;
+  margin: 0 !important;
+}
+
+.a-nav {
+  background-color: #fff !important;
+  border-bottom: #cfcfcf solid 1px !important;
+  border-radius: 0 !important;
+  -webkit-border-radius: 0 !important;
+  -moz-border-radius: 0 !important;
+  -ms-border-radius: 0 !important;
+  -o-border-radius: 0 !important;
+  width: 100%;
+  color: #747171 !important;
+  padding: 10px 0px 10px 0px !important;
+  text-transform: uppercase;
+}
+
+.a-nav::after {
+  content: "";
+  position: relative !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff !important;
+}
+
+.a-nav:hover {
+  border-right: #0b66b6 2px solid;
+  margin: 0 !important;
 }
