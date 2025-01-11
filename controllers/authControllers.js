@@ -154,7 +154,10 @@ exports.protectCart = catchAsync(async (req, res, next) => {
 });
 
 exports.verifyVendor = (req, res, next) => {
-  if (req.user.accountVerification !== "accepted")
+  if (
+    req.user.accountVerification !== "accepted" &&
+    req.user.for !== process.env.WEBSITE_CATEGORY
+  )
     return next(new AppError("Invalid vendor.", 400));
   return next();
 };
@@ -241,7 +244,10 @@ exports.userOtpGenerate = catchAsync(async (req, res, next) => {
   let otp;
   if (!user) {
     req.body.ecmuId = await encryptID();
-    if (req.boby?.role && req.body?.role !== "vendor") delete req.body.role;
+    if (req.boby?.role && req.body?.role !== "vendor") {
+      delete req.body.role;
+      req.body.for = process.env.WEBSITE_CATEGORY;
+    }
     req.body.name = req.body.name ?? "Guest-" + Date.now();
     const newUser = await userModel.create(req.body);
     otp = await generateOtpForUser(req, res, next, newUser);
