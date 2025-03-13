@@ -1427,7 +1427,7 @@ exports.createNewCart = catchAsync(async (req, res, next) => {
   const product = await productModel.findOne({
     ...filterQur,
     ecmpeId: req.params.productId,
-    // verified: true,
+     verified: true,
   });
 
   
