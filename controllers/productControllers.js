@@ -787,7 +787,7 @@ exports.getAllProduct = catchAsync(async (req, res, next) => {
       };
     }
   }
-  console.log(req.query);
+ 
   if (req.query.size) {
     const exp = req.query.size.split(",").map((el) => new RegExp(el, "i"));
     filterQuery["productDetails.subDetails.size"] = {
@@ -1423,12 +1423,14 @@ exports.cancelAOrder = catchAsync(async (req, res, next) => {
 exports.createNewCart = catchAsync(async (req, res, next) => {
   const filterQur =
     req.from === "web" ? { for: process.env.WEBSITE_CATEGORY } : [];
+   
   const product = await productModel.findOne({
     ...filterQur,
     ecmpeId: req.params.productId,
-    verified: true,
+    // verified: true,
   });
 
+  
   let finalRs = {};
   if (req.from === "web") {
     if (req.login) {
@@ -1555,7 +1557,7 @@ exports.createNewCart = catchAsync(async (req, res, next) => {
       upsert: true,
     }
   );
-
+console.log('h')
   return res.status(200).json({ status: "Success" });
 });
 

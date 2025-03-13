@@ -6,8 +6,10 @@ const catchAsync = require("../util/catchAsync");
 const encryptID = require("../util/encryptID");
 
 exports.getAllCategorie = catchAsync(async (req, res, next) => {
-  const category = await categorieModel.find({
-    for: process.env.WEBSITE_CATEGORY,
-  });
+  console.log(req.qury)
+  const category = await categorieModel.find(
+    req.from !== "mobile" || req.query.forWho === "vendor" ? { for: process.env.WEBSITE_CATEGORY } : {}
+  );
+  
   return res.json({ status: "Success", docs: category });
 });

@@ -48,6 +48,8 @@ exports.updateUser = catchAsync(async (req, res, next) => {
         req.user.accountVerification === "accepted"
       ? ["name", "profile"]
       : [[]];
+
+      console.log(req.body)
   const filterObject = filerDataFromRequest(req.body, ...filter);
   if (req.file) filterObject.photo = req.file.filename;
   if (!filterObject.email) delete filterObject.email;
